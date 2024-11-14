@@ -33,14 +33,15 @@ function getScaleForContainer(page) {
 function renderPage(num) {
     pageRendering = true;
     pdfDoc.getPage(num).then(function(page) {
-        var scaleForContainer = getScaleForContainer(page); 
-        var viewport = page.getViewport({ scale: scaleForContainer, rotation: rotation }); 
+        var scaleForContainer = getScaleForContainer(page);  // Calcula la escala
+        var renderScale = scaleForContainer * 5;  // Aumentamos la escala de renderizado a 2 para mejorar calidad
+
+        var viewport = page.getViewport({ scale: renderScale, rotation: rotation }); // Ajusta el viewport con la escala
 
         var pageDiv = document.createElement('div');
         pageDiv.className = 'page';
         pageDiv.style.width = viewport.width + 'px';
         pageDiv.style.height = viewport.height + 'px';
-
 
         while (viewer.firstChild) {
             viewer.removeChild(viewer.firstChild);
