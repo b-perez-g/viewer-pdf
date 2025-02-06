@@ -1,21 +1,16 @@
-var urlParams = new URLSearchParams(window.location.search);
-var pdfUrl = urlParams.get('file');
-var initialPageNum = parseInt(window.location.hash.split('=')[1]) || 1;
-var pdfDoc = null,
-    pageNum = initialPageNum,
-    pageRendering = false,
-    pageNumPending = null,
-    scale = 1, 
-    viewer = document.getElementById('viewer'),
-    viewerContainer = document.getElementById('viewerContainer'),
-    rotation = 0,
-    initialRender = true; 
-
-
+/** 
+ * Verifica si el documento PDF ha sido cargado.
+ * @returns {boolean} true si el PDF está cargado, false en caso contrario.
+ */
 function isPdfLoaded() {
     return pdfDoc !== null;
 }
 
+/** 
+ * Agrega una página a la cola de renderizado.
+ * Si ya se está renderizando una página, se agrega a la cola para ser procesada después.
+ * @param {number} num - Número de la página a renderizar.
+ */
 function queueRenderPage(num) {
     if (pageRendering) {
         pageNumPending = num;
@@ -24,26 +19,37 @@ function queueRenderPage(num) {
     }
 }
 
+/** 
+ * Calcula la escala adecuada para ajustar la página al contenedor del visor.
+ * @param {Object} page - Objeto de la página que se va a renderizar.
+ * @returns {number} escala adecuada para el contenedor.
+ */
 function getScaleForContainer(page) {
-    var containerWidth = viewerContainer.clientWidth; 
+    var containerWidth = viewerContainer.clientWidth;
     var viewport = page.getViewport({ scale: 1 });
-    var pageWidth = viewport.width + 25; 
-    return containerWidth / pageWidth; 
+    var pageWidth = viewport.width + 25;
+    return containerWidth / pageWidth;
 }
 
+/** 
+ * Renderiza una página del PDF en el visor.
+ * @param {number} num - Número de la página que se va a renderizar.
+ */
 function renderPage(num) {
     pageRendering = true;
     pdfDoc.getPage(num).then(function(page) {
         var scaleForContainer = getScaleForContainer(page);
         var renderScale = scaleForContainer * 2.5;
-        if(initialRender){
-            scale = scale/2.5;
+
+        if (initialRender){
+            scale = scale / 2.5;
             initialRender = false;
         }
-            
-        var viewport = page.getViewport({ scale: renderScale, rotation: rotation }); 
+
+        var viewport = page.getViewport({ scale: renderScale, rotation: rotation });
         viewer.style.transform = `scale(${scale})`;
         viewer.style.transformOrigin = 'top left';
+
         var pageDiv = document.createElement('div');
         pageDiv.className = 'page';
         pageDiv.style.width = viewport.width + 'px';
@@ -64,6 +70,7 @@ function renderPage(num) {
             canvasContext: context,
             viewport: viewport
         };
+
         var renderTask = page.render(renderContext);
 
         renderTask.promise.then(function() {
@@ -91,6 +98,10 @@ function renderPage(num) {
     document.getElementById('pageNum').textContent = num;
 }
 
+/** 
+ * Maneja la acción de ir a la página anterior.
+ * Si ya está en la primera página, no hace nada.
+ */
 function onPrevPage() {
     if (pageNum <= 1) {
         return;
@@ -100,6 +111,10 @@ function onPrevPage() {
     updateHash(pageNum);
 }
 
+/** 
+ * Maneja la acción de ir a la página siguiente.
+ * Si ya está en la última página, no hace nada.
+ */
 function onNextPage() {
     if (pageNum >= pdfDoc.numPages) {
         return;
@@ -109,10 +124,18 @@ function onNextPage() {
     updateHash(pageNum);
 }
 
+/** 
+ * Actualiza el hash de la URL para reflejar la página actual.
+ * @param {number} pageNum - Número de la página actual.
+ */
 function updateHash(pageNum) {
     window.location.hash = `page=${pageNum}`;
 }
 
+/** 
+ * Maneja el zoom al usar la rueda del ratón con la tecla Ctrl presionada.
+ * @param {Event} event - Evento de la rueda del ratón.
+ */
 function onWheelZoom(event) {
     if (event.ctrlKey) {
         event.preventDefault();
@@ -126,6 +149,9 @@ function onWheelZoom(event) {
     }
 }
 
+/** 
+ * Maneja el cambio en el hash de la URL y actualiza la página mostrada.
+ */
 function onHashChange() {
     var newPageNum = parseInt(window.location.hash.split('=')[1]) || 1;
     if (newPageNum !== pageNum) {
@@ -134,45 +160,19 @@ function onHashChange() {
     }
 }
 
+/** 
+ * Maneja la rotación de la página hacia la izquierda (90 grados).
+ */
 function onRotateLeft() {
     rotation = (rotation - 90) % 360;
     if (rotation < 0) rotation += 360;
     queueRenderPage(pageNum);
 }
 
+/** 
+ * Maneja la rotación de la página hacia la derecha (90 grados).
+ */
 function onRotateRight() {
     rotation = (rotation + 90) % 360;
     queueRenderPage(pageNum);
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById('prevPage').addEventListener('click', onPrevPage);
-    document.getElementById('nextPage').addEventListener('click', onNextPage);
-    document.getElementById('rotateLeft').addEventListener('click', onRotateLeft);
-    document.getElementById('rotateRight').addEventListener('click', onRotateRight);
-
-    if (!isPdfLoaded()) {
-        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
-            pdfDoc = pdfDoc_;
-            document.getElementById('pageCount').textContent = pdfDoc.numPages;
-
-            if (pdfDoc.numPages === 1) {
-                document.getElementById('prevPage').disabled = true;
-                document.getElementById('nextPage').disabled = true;
-            } else {
-                document.getElementById('prevPage').disabled = false;
-                document.getElementById('nextPage').disabled = false;
-            }
-
-            renderPage(pageNum);
-        }).catch(function(error) {
-            console.error('Error loading PDF: ', error);
-        });
-    } else {
-        renderPage(pageNum);
-    }
-
-    window.addEventListener('wheel', onWheelZoom, { passive: false });
-});
-
-window.addEventListener('hashchange', onHashChange);

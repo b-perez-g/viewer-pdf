@@ -1,0 +1,56 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+#navigation {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #F0F0F0;
+    z-index: 1000;
+    text-align: center;
+    padding: 10px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#viewerContainer {
+    margin-top: 50px;
+    width: 100%;
+    height: calc(100vh - 50px);
+    overflow: auto; 
+    position: relative;
+    background-color: #FFFFFF;
+}
+
+.btn {
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px; 
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px; 
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease;
+}
+
+.separator {
+    width: 20px;
+    margin: 0 15px; 
+}
+
+.page {
+    border: 1px solid black;
+    margin: 10px 0;
+    position: relative;
+}
+
+.textLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}

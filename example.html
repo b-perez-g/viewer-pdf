@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo de Integrador de Viewer</title>
+</head>
+<body style="display: flex; margin: 0; padding: 0; height: 100vh;">
+    <div style="width: 50%; padding: 20px;">
+        <h1>Ejemplo de Integrador de Viewer</h1>
+
+        <h2>Visor HTML Integrado</h2>
+        <p>
+            Este es un ejemplo de cómo integrar un visor de contenido HTML dentro de una página.
+            El archivo <strong>viewer.html</strong> se muestra a la derecha utilizando un iframe.
+        </p>
+        <a href="viewer.html?file=https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf#page=1" target="_blank">Ver archivo viewer.html</a>
+    </div>
+    <div style="width: 50%; padding: 20px; overflow: hidden;">
+        <h2>Contenido del archivo viewer.html (visualmente integrado)</h2>
+        <iframe src="viewer.html?file=https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf#page=1" width="100%" height="100%" style="border: none;"></iframe>
+    </div>
+
+</body>
+</html>
